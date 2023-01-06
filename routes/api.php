@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ClientesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,5 +27,6 @@ Route::prefix('/user')->group( function () {
   //  Route::get('/get-users', 'App\Http\Controllers\UserController@getUsers');
 
     Route::middleware('auth:api')->get('/get-users', 'App\Http\Controllers\UserController@getUsers');
-      
+    Route::middleware('auth:api')->get('/get-clientes', [ClientesController::class, 'getClients']);
+  
 });
