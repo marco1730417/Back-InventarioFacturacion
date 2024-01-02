@@ -17,7 +17,9 @@ class LoginController extends Controller
  
         if (auth()->attempt($data)) {
             $token = auth()->user()->createToken('LaravelAuthApp')->accessToken;
-            return response()->json(['token' => $token], 200);
+            $user = User::where('email',$request->email)->first();
+            
+            return response()->json(['token' => $token,'user'=>$user], 200);
         } else {
             return response()->json(['error' => 'Unauthorised'], 401);
         }
@@ -28,11 +30,12 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
-        $request->user()->token()->revoke();
+        //return $request->id->user();
 
-        return response()->json([
-            'message' => 'Successfully logged out'
-        ]);
+         $token = $request->user()->token();
+        $token->revoke();
+        $response = ['message' => 'You have been successfully logged out!', 'status' => 200];
+        return response($response, 200);
     }
     
     /**
