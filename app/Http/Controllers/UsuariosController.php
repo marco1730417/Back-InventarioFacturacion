@@ -38,6 +38,7 @@ class UsuariosController extends ApiResponseController
         $new_data->sueldo = $request->sueldo;
         $new_data->password = bcrypt($request->identificacion);
         $new_data->perfil = 2;
+        $new_data->numero_horas_laborables = $request->numero_horas_laborables;
         $new_data->estado = 1;
 
         $new_data->save();
@@ -58,6 +59,7 @@ class UsuariosController extends ApiResponseController
         $update_data->direccion = strtoupper($request->direccion);
         $update_data->cargo = $request->cargo;
         $update_data->sueldo = $request->sueldo;
+        $update_data->numero_horas_laborables =$request->numero_horas_laborables;
         $update_data->update();
 
 

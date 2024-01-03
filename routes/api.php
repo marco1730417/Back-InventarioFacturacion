@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClientesController;
 use App\Http\Controllers\UsuariosController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\MarcacionesController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -48,5 +50,12 @@ Route::middleware('auth:api')->prefix('usuarios')->group(function () {
   Route::post('editar-registro', [UsuariosController::class, 'editarRegistro']);
   Route::get('eliminar-registro/{id} ', [UsuariosController::class, 'eliminarRegistro']);
   Route::get('resetear-clave/{id} ', [UsuariosController::class, 'resetearClave']);
+  
+});
+
+Route::middleware('auth:api')->prefix('marcaciones')->group(function () {
+  Route::post('obtener-registro-marcaciones', [MarcacionesController::class, 'obtenerRegistrosMarcaciones']);
+  Route::post('guardar-registro-entrada', [MarcacionesController::class, 'guardarRegistroEntrada']);
+  Route::post('guardar-registro-salida', [MarcacionesController::class, 'guardarRegistroSalida']);
   
 });
