@@ -8,6 +8,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MarcacionesController;
 
 
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -58,4 +59,11 @@ Route::middleware('auth:api')->prefix('marcaciones')->group(function () {
   Route::post('guardar-registro-entrada', [MarcacionesController::class, 'guardarRegistroEntrada']);
   Route::post('guardar-registro-salida', [MarcacionesController::class, 'guardarRegistroSalida']);
   
+});
+
+Route::middleware('auth:api')->prefix('agendamiento')->group(function () {
+  Route::post('cargar-agendamiento', [MarcacionesController::class, 'cargarAgendamiento']);
+  Route::post('obtener-registro-agendamiento', [MarcacionesController::class, 'obtenerRegistrosAgendamiento']);
+  Route::get('cambiar-estado-agendamiento/{id}', [MarcacionesController::class, 'cambiarEstadoAgendamiento']);
+ 
 });
