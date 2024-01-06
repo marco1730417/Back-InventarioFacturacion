@@ -18,9 +18,16 @@ class MarcacionesController extends ApiResponseController
 {
     public function obtenerRegistrosMarcaciones(Request $request)
     {
+        $fecha = date("Y-m-d");
 
+        $formato = 'Y-m-d'; 
+      
+        $fecha_inicio = $request->fechaInicio ? date_format(date_create($request->fechaInicio), $formato) : $fecha;
+        $fecha_final = $request->fechaFinal ? date_format(date_create($request->fechaFinal), $formato) : $fecha;
+        
         $info = Marcaciones::where('estado', 1)
             ->where('usuario_id', $request->usuario_id)
+            ->whereBetween('fecha', [$fecha_inicio, $fecha_final])
             ->get();
 
         return $info;
@@ -31,8 +38,11 @@ class MarcacionesController extends ApiResponseController
 
         try {
             //code...
+            $fecha = date("Y-m-d");
+        
             $existente = Marcaciones::where('usuario_id', $request->usuario_id)
                 ->where('estado', 1)
+                ->where('fecha',$fecha)
                 ->whereNotNull('hora_entrada')
                 ->count();
 
@@ -63,15 +73,17 @@ class MarcacionesController extends ApiResponseController
     {
 
         try {
-            //code...
+
+            $fecha = date("Y-m-d");
+        
             $existente = Marcaciones::where('usuario_id', $request->usuario_id)
                 ->where('estado', 1)
+                ->where('fecha',$fecha)
                 ->whereNotNull('hora_salida')
                 ->count();
 
             if ($existente > 0) return $this->errorResponse($existente, 404, 'Registro existente');
 
-            $fecha = date("Y-m-d");
             $hora_entrada_existente = Marcaciones::where('usuario_id', $request->usuario_id)
                 ->where('estado', 1)
                 ->whereNotNull('hora_entrada')
