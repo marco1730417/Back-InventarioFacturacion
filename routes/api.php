@@ -6,6 +6,7 @@ use App\Http\Controllers\ClientesController;
 use App\Http\Controllers\UsuariosController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MarcacionesController;
+use App\Http\Controllers\ReportesController;
 
 
 
@@ -65,5 +66,11 @@ Route::middleware('auth:api')->prefix('agendamiento')->group(function () {
   Route::post('cargar-agendamiento', [MarcacionesController::class, 'cargarAgendamiento']);
   Route::post('obtener-registro-agendamiento', [MarcacionesController::class, 'obtenerRegistrosAgendamiento']);
   Route::get('cambiar-estado-agendamiento/{id}', [MarcacionesController::class, 'cambiarEstadoAgendamiento']);
+ 
+});
+Route::middleware('auth:api')->prefix('reportes')->group(function () {
+  Route::post('calcular-marcaciones', [ReportesController::class, 'calcularMarcaciones']);
+  Route::post('obtener-registro-agendamiento', [ReportesController::class, 'obtenerRegistrosAgendamiento']);
+  Route::get('cambiar-estado-agendamiento/{id}', [ReportesController::class, 'cambiarEstadoAgendamiento']);
  
 });

@@ -49,6 +49,8 @@ class MarcacionesController extends ApiResponseController
             if ($existente > 0) return $this->errorResponse($existente, 404, 'Registro existente');
 
             $fecha = date("Y-m-d");
+            $mes = date('m');
+            $anio = date('Y');
             $hora_entrada = date("H:i:s");
 
             $new_data = new Marcaciones;
@@ -56,6 +58,9 @@ class MarcacionesController extends ApiResponseController
             $new_data->fecha = $fecha;
             $new_data->usuario_id = $request->usuario_id;
             $new_data->estado = 1;
+            $new_data->mes = $mes;
+            $new_data->anio = $anio;
+            
 
             $new_data->save();
 
