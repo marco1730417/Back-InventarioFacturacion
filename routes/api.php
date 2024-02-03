@@ -59,7 +59,9 @@ Route::middleware('auth:api')->prefix('marcaciones')->group(function () {
   Route::post('obtener-registro-marcaciones', [MarcacionesController::class, 'obtenerRegistrosMarcaciones']);
   Route::post('guardar-registro-entrada', [MarcacionesController::class, 'guardarRegistroEntrada']);
   Route::post('guardar-registro-salida', [MarcacionesController::class, 'guardarRegistroSalida']);
-  
+  Route::post('guardar-marcacion', [MarcacionesController::class, 'guardarMarcacion']);
+  Route::post('guardar-marcacion-salida', [MarcacionesController::class, 'guardarMarcacionSalida']);
+ 
 });
 
 Route::middleware('auth:api')->prefix('agendamiento')->group(function () {

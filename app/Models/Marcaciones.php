@@ -20,6 +20,8 @@ class Marcaciones extends Authenticatable
     protected $fillable = [
         'fecha_hora_entrada',
         'fecha_hora_salida',
+        'hora_entrada',
+        'hora_salida',
         'usuario_id',
         'estado',
      ];

@@ -20,11 +20,11 @@ class MarcacionesController extends ApiResponseController
     {
         $fecha = date("Y-m-d");
 
-        $formato = 'Y-m-d'; 
-      
+        $formato = 'Y-m-d';
+
         $fecha_inicio = $request->fechaInicio ? date_format(date_create($request->fechaInicio), $formato) : $fecha;
         $fecha_final = $request->fechaFinal ? date_format(date_create($request->fechaFinal), $formato) : $fecha;
-        
+
         $info = Marcaciones::where('estado', 1)
             ->where('usuario_id', $request->usuario_id)
             ->whereBetween('fecha', [$fecha_inicio, $fecha_final])
@@ -39,10 +39,10 @@ class MarcacionesController extends ApiResponseController
         try {
             //code...
             $fecha = date("Y-m-d");
-        
+
             $existente = Marcaciones::where('usuario_id', $request->usuario_id)
                 ->where('estado', 1)
-                ->where('fecha',$fecha)
+                ->where('fecha', $fecha)
                 ->whereNotNull('hora_entrada')
                 ->count();
 
@@ -60,7 +60,7 @@ class MarcacionesController extends ApiResponseController
             $new_data->estado = 1;
             $new_data->mes = $mes;
             $new_data->anio = $anio;
-            
+
 
             $new_data->save();
 
@@ -80,10 +80,10 @@ class MarcacionesController extends ApiResponseController
         try {
 
             $fecha = date("Y-m-d");
-        
+
             $existente = Marcaciones::where('usuario_id', $request->usuario_id)
                 ->where('estado', 1)
-                ->where('fecha',$fecha)
+                ->where('fecha', $fecha)
                 ->whereNotNull('hora_salida')
                 ->count();
 
@@ -259,5 +259,172 @@ class MarcacionesController extends ApiResponseController
 
         if (!$update_data) return $this->errorResponse(500);
         return $this->successResponse($update_data);
+    }
+
+
+
+    public function guardarMarcacion(Request $request)
+    {
+
+        try {
+            //code...
+            $fecha = date("Y-m-d");
+
+            $existentedata = Marcaciones::where('usuario_id', $request->usuario_id)
+                ->where('estado', 1)
+                ->where('fecha', $request->fecha)
+                ->whereNotNull('hora_entrada')
+                ->first();
+
+                $existentedatasalida = Marcaciones::where('usuario_id', $request->usuario_id)
+                ->where('estado', 1)
+                ->where('fecha', $request->fecha)
+                ->whereNotNull('hora_salida')
+                ->first();
+            
+
+
+            $existente = Marcaciones::where('usuario_id', $request->usuario_id)
+                ->where('estado', 1)
+                ->where('fecha', $request->fecha)
+                ->whereNotNull('hora_entrada')
+                ->count();
+
+            $existente_hora_salida = Marcaciones::where('usuario_id', $request->usuario_id)
+                ->where('estado', 1)
+                ->where('fecha', $request->fecha)
+                ->whereNotNull('hora_salida')
+                ->count();
+
+            if ($existente > 0 || $existente_hora_salida > 0) {
+
+                if($existentedata) { 
+                Marcaciones::find($existentedata->id)->update([
+                    'hora_entrada' => $request->hora,
+                ]);
+
+                return $this->successResponse('OK', 200, 'Registro actualizado exitosamente');
+            }
+            if($existentedatasalida) { 
+                Marcaciones::find($existentedatasalida->id)->update([
+                    'hora_entrada' => $request->hora,
+                ]);
+
+                return $this->successResponse('OK', 200, 'Registro actualizado exitosamente');
+            }
+            
+
+
+            }
+
+
+
+            $fecha = date("Y-m-d");
+            $mes = date('m');
+            $anio = date('Y');
+
+            $new_data = new Marcaciones;
+            $new_data->hora_entrada = $request->hora_entrada;
+            $new_data->fecha = $request->fecha;
+            $new_data->usuario_id = $request->usuario_id;
+            $new_data->estado = 1;
+            $new_data->mes = $mes;
+            $new_data->anio = $anio;
+
+
+            $new_data->save();
+
+            $respuesta = [
+                'data' => $new_data
+            ];
+            return $this->successResponse($respuesta, 200, 'Registro guardado exitosamente');
+        } catch (\Throwable $th) {
+            //throw $th;
+            return  $this->errorResponse($existente, 404, $th);
+        }
+    }
+
+    public function guardarMarcacionSalida(Request $request)
+    {
+
+        try {
+            //code...
+            $fecha = date("Y-m-d");
+
+            $existentedata = Marcaciones::where('usuario_id', $request->usuario_id)
+                ->where('estado', 1)
+                ->where('fecha', $request->fechasalida)
+                ->whereNotNull('hora_entrada')
+                ->first();
+
+                $existentedatasalida = Marcaciones::where('usuario_id', $request->usuario_id)
+                ->where('estado', 1)
+                ->where('fecha', $request->fechasalida)
+                ->whereNotNull('hora_salida')
+                ->first();
+            
+
+
+            $existente = Marcaciones::where('usuario_id', $request->usuario_id)
+                ->where('estado', 1)
+                ->where('fecha', $request->fechasalida)
+                ->whereNotNull('hora_entrada')
+                ->count();
+
+             
+
+            $existente_hora_salida = Marcaciones::where('usuario_id', $request->usuario_id)
+                ->where('estado', 1)
+                ->where('fecha', $request->fechasalida)
+                ->whereNotNull('hora_salida')
+                ->count();
+
+            if ($existente > 0 || $existente_hora_salida > 0) {
+
+                if($existentedata) { 
+                Marcaciones::find($existentedata->id)->update([
+                    'hora_salida' => $request->hora_salida,
+                ]);
+
+                return $this->successResponse('OK', 200, 'Registro actualizado exitosamente');
+            }
+            if($existentedatasalida) { 
+                Marcaciones::find($existentedatasalida->id)->update([
+                    'hora_salida' => $request->hora_salida,
+                ]);
+
+                return $this->successResponse('OK', 200, 'Registro actualizado exitosamente');
+            }
+            
+
+
+            }
+            else { 
+
+            $fecha = date("Y-m-d");
+            $mes = date('m');
+            $anio = date('Y');
+            $hora_entrada = date("H:i:s");
+
+            $new_data = new Marcaciones;
+            $new_data->hora_salida = $request->hora_salida;
+            $new_data->fecha = $request->fechasalida;
+            $new_data->usuario_id = $request->usuario_id;
+            $new_data->estado = 1;
+            $new_data->mes = $mes;
+            $new_data->anio = $anio;
+
+
+            $new_data->save();
+
+            $respuesta = [
+                'data' => $new_data
+            ];
+            return $this->successResponse($respuesta, 200, 'Registro guardado exitosamente');
+        }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return  $this->errorResponse($th, 404, $th);
+        }
     }
 }
