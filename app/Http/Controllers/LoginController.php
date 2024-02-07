@@ -11,13 +11,14 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $data = [
-            'email' => $request->email,
+            'identificacion' => $request->identificacion,
             'password' => $request->password
         ];
  
+
         if (auth()->attempt($data)) {
             $token = auth()->user()->createToken('LaravelAuthApp')->accessToken;
-            $user = User::where('email',$request->email)->first();
+            $user = User::where('identificacion',$request->identificacion)->first();
             
             return response()->json(['token' => $token,'user'=>$user], 200);
         } else {

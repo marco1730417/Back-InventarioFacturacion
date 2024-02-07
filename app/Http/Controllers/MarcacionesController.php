@@ -164,13 +164,7 @@ class MarcacionesController extends ApiResponseController
             'data' => Agendamiento::where('anio', $req_anio)->where('mes', $req_mes)->get()
         ];
         return $this->successResponse($respuesta, 200, 'Registro guardado exitosamente');
-        /* 
-        $array_response['status'] = 200;
 
-        $array_response['message'] = 'Registro ingresado exitosamente';
-
-        return response()->json($array_response, 200);
-     */
     }
 
     public function obtenerRegistrosAgendamiento(Request $request)
@@ -276,12 +270,12 @@ class MarcacionesController extends ApiResponseController
                 ->whereNotNull('hora_entrada')
                 ->first();
 
-                $existentedatasalida = Marcaciones::where('usuario_id', $request->usuario_id)
+            $existentedatasalida = Marcaciones::where('usuario_id', $request->usuario_id)
                 ->where('estado', 1)
                 ->where('fecha', $request->fecha)
                 ->whereNotNull('hora_salida')
                 ->first();
-            
+
 
 
             $existente = Marcaciones::where('usuario_id', $request->usuario_id)
@@ -298,23 +292,20 @@ class MarcacionesController extends ApiResponseController
 
             if ($existente > 0 || $existente_hora_salida > 0) {
 
-                if($existentedata) { 
-                Marcaciones::find($existentedata->id)->update([
-                    'hora_entrada' => $request->hora,
-                ]);
+                if ($existentedata) {
+                    Marcaciones::find($existentedata->id)->update([
+                        'hora_entrada' => $request->hora,
+                    ]);
 
-                return $this->successResponse('OK', 200, 'Registro actualizado exitosamente');
-            }
-            if($existentedatasalida) { 
-                Marcaciones::find($existentedatasalida->id)->update([
-                    'hora_entrada' => $request->hora,
-                ]);
+                    return $this->successResponse('OK', 200, 'Registro actualizado exitosamente');
+                }
+                if ($existentedatasalida) {
+                    Marcaciones::find($existentedatasalida->id)->update([
+                        'hora_entrada' => $request->hora,
+                    ]);
 
-                return $this->successResponse('OK', 200, 'Registro actualizado exitosamente');
-            }
-            
-
-
+                    return $this->successResponse('OK', 200, 'Registro actualizado exitosamente');
+                }
             }
 
 
@@ -357,12 +348,12 @@ class MarcacionesController extends ApiResponseController
                 ->whereNotNull('hora_entrada')
                 ->first();
 
-                $existentedatasalida = Marcaciones::where('usuario_id', $request->usuario_id)
+            $existentedatasalida = Marcaciones::where('usuario_id', $request->usuario_id)
                 ->where('estado', 1)
                 ->where('fecha', $request->fechasalida)
                 ->whereNotNull('hora_salida')
                 ->first();
-            
+
 
 
             $existente = Marcaciones::where('usuario_id', $request->usuario_id)
@@ -371,7 +362,7 @@ class MarcacionesController extends ApiResponseController
                 ->whereNotNull('hora_entrada')
                 ->count();
 
-             
+
 
             $existente_hora_salida = Marcaciones::where('usuario_id', $request->usuario_id)
                 ->where('estado', 1)
@@ -381,47 +372,43 @@ class MarcacionesController extends ApiResponseController
 
             if ($existente > 0 || $existente_hora_salida > 0) {
 
-                if($existentedata) { 
-                Marcaciones::find($existentedata->id)->update([
-                    'hora_salida' => $request->hora_salida,
-                ]);
+                if ($existentedata) {
+                    Marcaciones::find($existentedata->id)->update([
+                        'hora_salida' => $request->hora_salida,
+                    ]);
 
-                return $this->successResponse('OK', 200, 'Registro actualizado exitosamente');
+                    return $this->successResponse('OK', 200, 'Registro actualizado exitosamente');
+                }
+                if ($existentedatasalida) {
+                    Marcaciones::find($existentedatasalida->id)->update([
+                        'hora_salida' => $request->hora_salida,
+                    ]);
+
+                    return $this->successResponse('OK', 200, 'Registro actualizado exitosamente');
+                }
+            } else {
+
+                $fecha = date("Y-m-d");
+                $mes = date('m');
+                $anio = date('Y');
+                $hora_entrada = date("H:i:s");
+
+                $new_data = new Marcaciones;
+                $new_data->hora_salida = $request->hora_salida;
+                $new_data->fecha = $request->fechasalida;
+                $new_data->usuario_id = $request->usuario_id;
+                $new_data->estado = 1;
+                $new_data->mes = $mes;
+                $new_data->anio = $anio;
+
+
+                $new_data->save();
+
+                $respuesta = [
+                    'data' => $new_data
+                ];
+                return $this->successResponse($respuesta, 200, 'Registro guardado exitosamente');
             }
-            if($existentedatasalida) { 
-                Marcaciones::find($existentedatasalida->id)->update([
-                    'hora_salida' => $request->hora_salida,
-                ]);
-
-                return $this->successResponse('OK', 200, 'Registro actualizado exitosamente');
-            }
-            
-
-
-            }
-            else { 
-
-            $fecha = date("Y-m-d");
-            $mes = date('m');
-            $anio = date('Y');
-            $hora_entrada = date("H:i:s");
-
-            $new_data = new Marcaciones;
-            $new_data->hora_salida = $request->hora_salida;
-            $new_data->fecha = $request->fechasalida;
-            $new_data->usuario_id = $request->usuario_id;
-            $new_data->estado = 1;
-            $new_data->mes = $mes;
-            $new_data->anio = $anio;
-
-
-            $new_data->save();
-
-            $respuesta = [
-                'data' => $new_data
-            ];
-            return $this->successResponse($respuesta, 200, 'Registro guardado exitosamente');
-        }
         } catch (\Throwable $th) {
             //throw $th;
             return  $this->errorResponse($th, 404, $th);
