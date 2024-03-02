@@ -260,7 +260,7 @@ class MarcacionesController extends ApiResponseController
     public function guardarMarcacion(Request $request)
     {
 
-        try {
+              try {
             //code...
             $fecha = date("Y-m-d");
 
@@ -315,7 +315,7 @@ class MarcacionesController extends ApiResponseController
             $anio = date('Y');
 
             $new_data = new Marcaciones;
-            $new_data->hora_entrada = $request->hora_entrada;
+            $new_data->hora_entrada = $request->hora;
             $new_data->fecha = $request->fecha;
             $new_data->usuario_id = $request->usuario_id;
             $new_data->estado = 1;
