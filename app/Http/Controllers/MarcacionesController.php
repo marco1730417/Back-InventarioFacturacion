@@ -264,13 +264,13 @@ class MarcacionesController extends ApiResponseController
             //code...
             $fecha = date("Y-m-d");
 
-            $existentedata = Marcaciones::where('usuario_id', $request->usuario_id)
+            $existentedata = Marcaciones::where('usuario_id', $request->usuario_id['id'])
                 ->where('estado', 1)
                 ->where('fecha', $request->fecha)
                 ->whereNotNull('hora_entrada')
                 ->first();
 
-            $existentedatasalida = Marcaciones::where('usuario_id', $request->usuario_id)
+            $existentedatasalida = Marcaciones::where('usuario_id', $request->usuario_id['id'])
                 ->where('estado', 1)
                 ->where('fecha', $request->fecha)
                 ->whereNotNull('hora_salida')
@@ -278,13 +278,13 @@ class MarcacionesController extends ApiResponseController
 
 
 
-            $existente = Marcaciones::where('usuario_id', $request->usuario_id)
+            $existente = Marcaciones::where('usuario_id', $request->usuario_id['id'])
                 ->where('estado', 1)
                 ->where('fecha', $request->fecha)
                 ->whereNotNull('hora_entrada')
                 ->count();
 
-            $existente_hora_salida = Marcaciones::where('usuario_id', $request->usuario_id)
+            $existente_hora_salida = Marcaciones::where('usuario_id', $request->usuario_id['id'])
                 ->where('estado', 1)
                 ->where('fecha', $request->fecha)
                 ->whereNotNull('hora_salida')
@@ -317,7 +317,7 @@ class MarcacionesController extends ApiResponseController
             $new_data = new Marcaciones;
             $new_data->hora_entrada = $request->hora;
             $new_data->fecha = $request->fecha;
-            $new_data->usuario_id = $request->usuario_id;
+            $new_data->usuario_id = $request->usuario_id['id'];
             $new_data->estado = 1;
             $new_data->mes = $mes;
             $new_data->anio = $anio;
@@ -342,13 +342,13 @@ class MarcacionesController extends ApiResponseController
             //code...
             $fecha = date("Y-m-d");
 
-            $existentedata = Marcaciones::where('usuario_id', $request->usuario_id)
+            $existentedata = Marcaciones::where('usuario_id', $request->usuario_id['id'])
                 ->where('estado', 1)
                 ->where('fecha', $request->fechasalida)
                 ->whereNotNull('hora_entrada')
                 ->first();
 
-            $existentedatasalida = Marcaciones::where('usuario_id', $request->usuario_id)
+            $existentedatasalida = Marcaciones::where('usuario_id', $request->usuario_id['id'])
                 ->where('estado', 1)
                 ->where('fecha', $request->fechasalida)
                 ->whereNotNull('hora_salida')
@@ -356,7 +356,7 @@ class MarcacionesController extends ApiResponseController
 
 
 
-            $existente = Marcaciones::where('usuario_id', $request->usuario_id)
+            $existente = Marcaciones::where('usuario_id', $request->usuario_id['id'])
                 ->where('estado', 1)
                 ->where('fecha', $request->fechasalida)
                 ->whereNotNull('hora_entrada')
@@ -364,7 +364,7 @@ class MarcacionesController extends ApiResponseController
 
 
 
-            $existente_hora_salida = Marcaciones::where('usuario_id', $request->usuario_id)
+            $existente_hora_salida = Marcaciones::where('usuario_id', $request->usuario_id['id'])
                 ->where('estado', 1)
                 ->where('fecha', $request->fechasalida)
                 ->whereNotNull('hora_salida')
@@ -396,7 +396,7 @@ class MarcacionesController extends ApiResponseController
                 $new_data = new Marcaciones;
                 $new_data->hora_salida = $request->hora_salida;
                 $new_data->fecha = $request->fechasalida;
-                $new_data->usuario_id = $request->usuario_id;
+                $new_data->usuario_id = $request->usuario_id['id'];
                 $new_data->estado = 1;
                 $new_data->mes = $mes;
                 $new_data->anio = $anio;
