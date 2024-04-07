@@ -260,6 +260,12 @@ class MarcacionesController extends ApiResponseController
     public function guardarMarcacion(Request $request)
     {
 
+        // Dividir la fecha en partes usando el delimitador "-"
+$partes_fecha = explode("-", $request->fecha);
+
+// El segundo elemento del array resultante será el mes
+$mes = $partes_fecha[1];
+
               try {
             //code...
             $fecha = date("Y-m-d");
@@ -311,7 +317,7 @@ class MarcacionesController extends ApiResponseController
 
 
             $fecha = date("Y-m-d");
-            $mes = date('m');
+           // $mes = date('m');
             $anio = date('Y');
 
             $new_data = new Marcaciones;
@@ -341,6 +347,12 @@ class MarcacionesController extends ApiResponseController
         try {
             //code...
             $fecha = date("Y-m-d");
+                                    // Dividir la fecha en partes usando el delimitador "-"
+                $partes_fecha = explode("-", $request->fechasalida);
+
+                // El segundo elemento del array resultante será el mes
+                $mes = $partes_fecha[1];
+
 
             $existentedata = Marcaciones::where('usuario_id', $request->usuario_id['id'])
                 ->where('estado', 1)
@@ -389,8 +401,8 @@ class MarcacionesController extends ApiResponseController
             } else {
 
                 $fecha = date("Y-m-d");
-                $mes = date('m');
-                $anio = date('Y');
+           /*      $mes = date('m');
+            */     $anio = date('Y');
                 $hora_entrada = date("H:i:s");
 
                 $new_data = new Marcaciones;
