@@ -6,6 +6,7 @@ use App\Http\Controllers\ClientesController;
 use App\Http\Controllers\UsuariosController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MarcacionesController;
+use App\Http\Controllers\EmpresasController;
 use App\Http\Controllers\ReportesController;
 
 
@@ -74,5 +75,14 @@ Route::middleware('auth:api')->prefix('reportes')->group(function () {
   Route::post('calcular-marcaciones', [ReportesController::class, 'calcularMarcaciones']);
   Route::post('obtener-registro-agendamiento', [ReportesController::class, 'obtenerRegistrosAgendamiento']);
   Route::get('cambiar-estado-agendamiento/{id}', [ReportesController::class, 'cambiarEstadoAgendamiento']);
+ 
+});
+Route::middleware('auth:api')->prefix('empresas')->group(function () {
+  Route::get('obtener-registros', [EmpresasController::class, 'obtenerRegistros']);
+  Route::post('guardar-registro', [EmpresasController::class, 'guardarRegistro']);
+  Route::post('editar-registro', [EmpresasController::class, 'editarRegistro']);
+  
+  Route::post('guardar-marcacion', [EmpresasController::class, 'guardarMarcacion']);
+  Route::post('guardar-marcacion-salida', [EmpresasController::class, 'guardarMarcacionSalida']);
  
 });
