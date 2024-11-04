@@ -18,5 +18,10 @@ class Empresas extends Model
         'empTelefono',
         'empObservaciones'
     ];
+    
+    public function sucursales()
+    {
+        return $this->hasMany(Sucursales::class, 'empId', 'empId');
+    }
 
 }

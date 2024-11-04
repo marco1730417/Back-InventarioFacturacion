@@ -16,7 +16,7 @@ class EmpresasController extends ApiResponseController
 {
     public function obtenerRegistros()
     {
-        $info = Empresas::all();
+        $info = Empresas::with('sucursales')->get();
         return $info;
     }
 
@@ -40,8 +40,6 @@ class EmpresasController extends ApiResponseController
     }
     public function editarRegistro(Request $request)
     {
-
-
         $update_data = Empresas::findOrFail($request->empId);
         $update_data->empNombre = strtoupper($request->empNombre);
         $update_data->empDescripcion = strtoupper($request->empDescripcion);
@@ -65,13 +63,5 @@ class EmpresasController extends ApiResponseController
         if (!$delete_data) return $this->errorResponse(500);
         return $this->successResponse(200);
     }
-    public function resetearClave($id)
-    {
-        $update_data = User::findOrFail($id);
-        $update_data->password = bcrypt($update_data->identificacion);
-        $update_data->update();
 
-        if (!$update_data) return $this->errorResponse(500);
-        return $this->successResponse(200);
-    }
 }
