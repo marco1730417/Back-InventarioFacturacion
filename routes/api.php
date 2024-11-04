@@ -82,6 +82,7 @@ Route::middleware('auth:api')->prefix('empresas')->group(function () {
   Route::get('obtener-registros', [EmpresasController::class, 'obtenerRegistros']);
   Route::post('guardar-registro', [EmpresasController::class, 'guardarRegistro']);
   Route::post('editar-registro', [EmpresasController::class, 'editarRegistro']);
+  Route::get('obtener-tipo-ingestas', [EmpresasController::class, 'obtenerTipoIngestas']);
   
   Route::post('guardar-marcacion', [EmpresasController::class, 'guardarMarcacion']);
   Route::post('guardar-marcacion-salida', [EmpresasController::class, 'guardarMarcacionSalida']);

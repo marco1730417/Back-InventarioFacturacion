@@ -24,4 +24,9 @@ class Empresas extends Model
         return $this->hasMany(Sucursales::class, 'empId', 'empId');
     }
 
+    public function ingestas()
+    {
+        return $this->hasMany(IngestasEmpresa::class, 'empId', 'empId');
+    }
+
 }

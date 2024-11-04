@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\ApiResponseController;
 use App\Models\User;
 use App\Models\Empresas;
-
+use App\Models\Parametros;
+use App\Models\IngestasEmpresa;
 use Auth;
 use Validator;
 use App\Models\Cliente;
@@ -16,8 +17,16 @@ class EmpresasController extends ApiResponseController
 {
     public function obtenerRegistros()
     {
-        $info = Empresas::with('sucursales')->get();
+        $info = Empresas::with('sucursales')
+        ->with('ingestas')
+        ->get();
         return $info;
+    }
+
+    public function obtenerTipoIngestas()
+    {
+        $cqlQuery = Parametros::where('descripcion','ingesta')->get();
+        return $cqlQuery;
     }
 
     public function guardarRegistro(Request $request)
@@ -32,6 +41,15 @@ class EmpresasController extends ApiResponseController
         $new_data->empTelefono =$request->empTelefono;
         $new_data->empObservaciones =$request->empObservaciones;
         $new_data->save();
+
+        $ingestas=collect($request->ingestas);
+
+        $ingestas->each( function ( $item ) use($new_data)  {
+        $cqlData = new IngestasEmpresa;
+        $cqlData->empId = $new_data->empId;
+        $cqlData->tipoId = $item;
+        $cqlData->save();
+          });
 
         $respuesta = [
             'data' => $new_data
