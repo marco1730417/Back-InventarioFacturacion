@@ -31,7 +31,7 @@ class EmpresasController extends ApiResponseController
 
     public function guardarRegistro(Request $request)
     {
-       
+
         $new_data = new Empresas;
         $new_data->empNombre = strtoupper($request->empNombre);
         $new_data->empDescripcion = strtoupper($request->empDescripcion);
@@ -58,6 +58,8 @@ class EmpresasController extends ApiResponseController
     }
     public function editarRegistro(Request $request)
     {
+        $empresa= $request->empId;
+
         $update_data = Empresas::findOrFail($request->empId);
         $update_data->empNombre = strtoupper($request->empNombre);
         $update_data->empDescripcion = strtoupper($request->empDescripcion);
@@ -67,6 +69,24 @@ class EmpresasController extends ApiResponseController
         $update_data->empObservaciones =$request->empObservaciones;
         $update_data->update();
 
+        $ingestas_existentes=IngestasEmpresa::where('empId',$request->empId)->get();
+
+        if(count($ingestas_existentes) > 0) {
+            $ingestas_existentes->each( function ( $item )  {
+
+                $elemento = IngestasEmpresa::findOrFail($item->impId);
+                $elemento->delete();
+            });
+        }
+
+        $ingestas=collect($request->ingestas);
+
+        $ingestas->each( function ( $item ) use($empresa)  {
+            $cqlData = new IngestasEmpresa;
+            $cqlData->empId = $empresa;
+            $cqlData->tipoId = $item;
+            $cqlData->save();
+        });
 
         if (!$update_data) return $this->errorResponse($update_data, 404, 'Error');
         return $this->successResponse($update_data, 200, 'Registro actualizado exitosamente');
