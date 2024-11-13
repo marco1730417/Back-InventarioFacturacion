@@ -14,15 +14,20 @@ use Illuminate\Http\Request;
 
 class SucursalesController extends ApiResponseController
 {
-    public function obtenerRegistros($empId)
+
+
+    public function obtenerRegistros()
     {
-        $info = Sucursales::where('empId',$empId);
+        $info = Sucursales:: leftJoin('empresas as emp', 'sucursales.empId', '=', 'emp.empId')
+            ->orderBy('sucursales.empId', 'asc')
+            ->get();
+
         return $info;
     }
 
     public function guardarRegistro(Request $request)
     {
-       
+
         $new_data = new Sucursales;
         $new_data->empId = $request->empId;
         $new_data->sucNombre = strtoupper($request->sucNombre);
@@ -48,7 +53,7 @@ class SucursalesController extends ApiResponseController
         $update_data->sucCorreo = $request->sucCorreo;
         $update_data->sucTelefono =$request->sucTelefono;
         $update_data->sucObservacion =$request->sucObservacion;
-        
+
         $update_data->update();
 
 

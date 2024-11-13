@@ -20,4 +20,10 @@ class Sucursales extends Model
         'empId' // La clave foránea que referencia a `empresas`
     ];
 
+
+    public function empresas(): BelongsTo
+    {
+        return $this->belongsTo(Empresas::class);
+    }
+
 }
