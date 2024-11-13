@@ -29,15 +29,15 @@ use App\Http\Controllers\ReportesController;
  */
 
 Route::prefix('/')->group( function () {
-   
+
     Route::post('login',[LoginController::class, 'login']);
     Route::post('register', [LoginController::class, 'register']);
 
     Route::middleware('auth:api')->get('/get-users', 'App\Http\Controllers\UserController@getUsers');
    // Route::middleware('auth:api')->get('/get-clientes', [ClientesController::class, 'getClients']);
     Route::middleware('auth:api')->post('/logout', [LoginController::class, 'logout']);
-    
-  
+
+
 });
 
 
@@ -54,7 +54,7 @@ Route::middleware('auth:api')->prefix('usuarios')->group(function () {
   Route::post('editar-registro', [UsuariosController::class, 'editarRegistro']);
   Route::get('eliminar-registro/{id} ', [UsuariosController::class, 'eliminarRegistro']);
   Route::get('resetear-clave/{id} ', [UsuariosController::class, 'resetearClave']);
-  
+
 });
 
 Route::middleware('auth:api')->prefix('marcaciones')->group(function () {
@@ -63,38 +63,38 @@ Route::middleware('auth:api')->prefix('marcaciones')->group(function () {
   Route::post('guardar-registro-salida', [MarcacionesController::class, 'guardarRegistroSalida']);
   Route::post('guardar-marcacion', [MarcacionesController::class, 'guardarMarcacion']);
   Route::post('guardar-marcacion-salida', [MarcacionesController::class, 'guardarMarcacionSalida']);
- 
+
 });
 
 Route::middleware('auth:api')->prefix('agendamiento')->group(function () {
   Route::post('cargar-agendamiento', [MarcacionesController::class, 'cargarAgendamiento']);
   Route::post('obtener-registro-agendamiento', [MarcacionesController::class, 'obtenerRegistrosAgendamiento']);
   Route::get('cambiar-estado-agendamiento/{id}', [MarcacionesController::class, 'cambiarEstadoAgendamiento']);
- 
+
 });
 Route::middleware('auth:api')->prefix('reportes')->group(function () {
   Route::post('calcular-marcaciones', [ReportesController::class, 'calcularMarcaciones']);
   Route::post('obtener-registro-agendamiento', [ReportesController::class, 'obtenerRegistrosAgendamiento']);
   Route::get('cambiar-estado-agendamiento/{id}', [ReportesController::class, 'cambiarEstadoAgendamiento']);
- 
+
 });
 Route::middleware('auth:api')->prefix('empresas')->group(function () {
   Route::get('obtener-registros', [EmpresasController::class, 'obtenerRegistros']);
   Route::post('guardar-registro', [EmpresasController::class, 'guardarRegistro']);
   Route::post('editar-registro', [EmpresasController::class, 'editarRegistro']);
   Route::get('obtener-tipo-ingestas', [EmpresasController::class, 'obtenerTipoIngestas']);
-  
+
   Route::post('guardar-marcacion', [EmpresasController::class, 'guardarMarcacion']);
   Route::post('guardar-marcacion-salida', [EmpresasController::class, 'guardarMarcacionSalida']);
- 
+
 });
 
 Route::middleware('auth:api')->prefix('sucursales')->group(function () {
-  Route::get('obtener-registros', [SucursalesController::class, 'obtenerRegistros']);
+  Route::get('obtener-registros/{fecha}', [SucursalesController::class, 'obtenerRegistros']);
   Route::post('guardar-registro', [SucursalesController::class, 'guardarRegistro']);
   Route::post('editar-registro', [SucursalesController::class, 'editarRegistro']);
-  
+
   Route::post('guardar-marcacion', [SucursalesController::class, 'guardarMarcacion']);
   Route::post('guardar-marcacion-salida', [SucursalesController::class, 'guardarMarcacionSalida']);
- 
+
 });
