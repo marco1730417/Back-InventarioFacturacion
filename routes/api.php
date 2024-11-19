@@ -8,6 +8,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MarcacionesController;
 use App\Http\Controllers\EmpresasController;
 use App\Http\Controllers\SucursalesController;
+use App\Http\Controllers\VentasController;
 use App\Http\Controllers\ReportesController;
 
 
@@ -96,5 +97,15 @@ Route::middleware('auth:api')->prefix('sucursales')->group(function () {
 
   Route::post('guardar-marcacion', [SucursalesController::class, 'guardarMarcacion']);
   Route::post('guardar-marcacion-salida', [SucursalesController::class, 'guardarMarcacionSalida']);
+
+});
+
+Route::middleware('auth:api')->prefix('ventas')->group(function () {
+    Route::get('obtener-registros/{fecha}', [VentasController::class, 'obtenerRegistros']);
+    Route::post('guardar-registro', [VentasController::class, 'guardarRegistro']);
+    Route::post('editar-registro', [VentasController::class, 'editarRegistro']);
+
+    Route::post('guardar-marcacion', [VentasController::class, 'guardarMarcacion']);
+    Route::post('guardar-marcacion-salida', [VentasController::class, 'guardarMarcacionSalida']);
 
 });

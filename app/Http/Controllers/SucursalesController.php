@@ -8,6 +8,7 @@ use App\Models\Sucursales;
 
 use Auth;
 use Validator;
+use DateTime;
 use App\Models\Cliente;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -16,31 +17,22 @@ class SucursalesController extends ApiResponseController
 {
     public function obtenerRegistros($fecha)
     {
+
+
         // Consulta base
         $registros = Sucursales::leftJoin('empresas as emp', 'sucursales.empId', '=', 'emp.empId')
-            ->leftJoin('ingestas_empresa as ing', 'emp.empId', '=', 'ing.empId')  // Relación empresa -> tipos de ingestas
 
-            ->leftJoin('ventas as v', function ($join) use ($fecha) {
-                $join->on('sucursales.sucId', '=', 'v.sucId')
-                    ->whereDate('v.venFecha', $fecha); // Filtrar por fecha
-            })
-
-            ->leftJoin('ingresos as i', function ($join) {
-                $join->on('v.venId', '=', 'i.venId'); // Relación venta -> ingresos
-            })
-
-            ->select(
+                ->select(
                 'sucursales.sucId',
                 'sucursales.sucNombre as sucursal_nombre',
                 'emp.empId',
-                'emp.empNombre as empresa_nombre',
-                'v.venId',
-                'v.venFecha',
-                'i.tipoId',
-                'i.ingCantidad as ingresos_cantidad'
+                'emp.empNombre as empresa_nombre'
+
             )
-            ->orderBy('sucursales.empId', 'asc')
+         //   ->orderBy('sucursales.empId', 'asc')
             ->get();
+
+        return $registros;
 
         // Estructura de resultados agrupados
         $ventasAgrupadas = [];
