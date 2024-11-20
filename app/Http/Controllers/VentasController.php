@@ -7,6 +7,10 @@ use App\Models\User;
 use App\Models\Sucursales;
 use App\Models\Ventas;
 
+use Illuminate\Support\Facades\DB;
+use App\Models\IngestasEmpresa;
+use App\Models\Ingresos;
+
 
 use Auth;
 use Validator;
@@ -26,6 +30,14 @@ class VentasController extends ApiResponseController
 
             }
 
+    public function ingestasEmpresa($empId)
+    {
+        $cqlData = IngestasEmpresa::where('empId',$empId)
+            ->leftJoin('parametros as par', 'ingestas_empresa.tipoId', '=', 'par.id')
+            ->get();
+        return $this->successResponse($cqlData, 200, 'Consulta exitosa');
+    }
+
     public function guardarRegistro(Request $request)
     {
 
@@ -38,26 +50,66 @@ class VentasController extends ApiResponseController
         $new_data->venObservacion = $request->venObservacion;
         $new_data->venFecha = $request->venFecha;
         $new_data->venCosto = $costo;
-
         $new_data->venEstado =  1;
 
         $new_data->save();
 
-       /*  $respuesta = [
-            'data' => $new_data
-        ]; */
         return $this->successResponse($new_data, 200, 'Registro guardado exitosamente');
+    }
+
+    public function guardarDetalleVenta(Request $request)
+    {
+
+        $sucId= $request['sucId'];
+        $fecha= $request['fecha'];
+        // Inicia una transacción
+        DB::beginTransaction();
+        try {
+        $venta= Ventas::where('venFecha',$fecha)->first();
+
+        if(!$venta) {
+            $venta = new Ventas;
+            $venta->venManoObra = 0;
+            $venta->venMateriaPrima = 0;
+            $venta->venEmpaques = 0;
+            $venta->venFecha = $fecha;
+            $venta->venCosto =0;
+            $venta->venEstado =  1;
+            $venta->save();
+        }
+
+        foreach ($request['cantidades'] as $tipoId => $cantidad) {
+
+            $new_data = new Ingresos;
+            $new_data->tipoId = $tipoId;
+            $new_data->ingCantidad = $cantidad;
+            $new_data->sucId = $sucId;
+            $new_data->venId = $venta->venId;
+            $new_data->save();
+
+        }
+// Confirmar la transacción
+            DB::commit();
+            return $this->successResponse($new_data, 200, 'Registro guardado exitosamente');
+            
+        } catch (\Exception $e) {
+            // Revertir la transacción en caso de error
+            DB::rollBack();
+
+            return $this->errorResponse($e->getMessage(), 500, 'Ocurrió un error al guardar los datos');
+        }
+
     }
     public function editarRegistro(Request $request)
     {
-        $update_data = Sucursales::findOrFail($request->sucId);
-        $update_data->sucNombre = strtoupper($request->sucNombre);
-        $update_data->sucDescripcion = strtoupper($request->sucDescripcion);
-        $update_data->sucUbicacion = strtoupper($request->sucUbicacion);
-        $update_data->sucCorreo = $request->sucCorreo;
-        $update_data->sucTelefono =$request->sucTelefono;
-        $update_data->sucObservacion =$request->sucObservacion;
+        $costo = ( $request->venManoObra +  $request->venMateriaPrima +  $request->venEmpaques );
 
+        $update_data = Ventas::findOrFail($request->venId);
+        $update_data->venManoObra = $request->venManoObra;
+        $update_data->venMateriaPrima = $request->venMateriaPrima;
+        $update_data->venEmpaques = $request->venEmpaques;
+        $update_data->venObservacion = $request->venObservacion;
+        $update_data->venCosto =$costo;
         $update_data->update();
 
 

@@ -102,8 +102,14 @@ Route::middleware('auth:api')->prefix('sucursales')->group(function () {
 
 Route::middleware('auth:api')->prefix('ventas')->group(function () {
     Route::get('obtener-registros/{fecha}', [VentasController::class, 'obtenerRegistros']);
+    Route::get('obtener-ingestas-empresa/{empId}', [VentasController::class, 'ingestasEmpresa']);
+
     Route::post('guardar-registro', [VentasController::class, 'guardarRegistro']);
+
     Route::post('editar-registro', [VentasController::class, 'editarRegistro']);
+
+    Route::post('guardar-detalle-venta', [VentasController::class, 'guardarDetalleVenta']);
+
 
     Route::post('guardar-marcacion', [VentasController::class, 'guardarMarcacion']);
     Route::post('guardar-marcacion-salida', [VentasController::class, 'guardarMarcacionSalida']);
