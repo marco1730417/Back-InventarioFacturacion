@@ -15,90 +15,70 @@ use Illuminate\Http\Request;
 
 class SucursalesController extends ApiResponseController
 {
+
+
     public function obtenerRegistros($fecha)
     {
-
-
-        // Consulta base
-        $registros = Sucursales::leftJoin('empresas as emp', 'sucursales.empId', '=', 'emp.empId')
-
-                ->select(
-                'sucursales.sucId',
-                'sucursales.sucNombre as sucursal_nombre',
-                'emp.empId',
-                'emp.empNombre as empresa_nombre'
-
-            )
-         //   ->orderBy('sucursales.empId', 'asc')
-            ->get();
-
-        return $registros;
-
-        // Estructura de resultados agrupados
-        $ventasAgrupadas = [];
-
-        foreach ($registros as $registro) {
-            $ventaId = $registro->venId;
-
-            // Si la venta ya existe en el array agrupado, añadimos el ingreso al sub-array 'ingresos'
-            if (isset($ventasAgrupadas[$ventaId])) {
-                $ventasAgrupadas[$ventaId]['ingresos'][] = [
-                    'tipoId' => $registro->tipoId,
-                    'ingresos_cantidad' => $registro->ingresos_cantidad
-                ];
-            } else {
-                // Nueva entrada de venta con sus datos y un sub-array para 'ingresos'
-                $ventasAgrupadas[$ventaId] = [
-                    'sucId' => $registro->sucId,
-                    'sucursal_nombre' => $registro->sucursal_nombre,
-                    'empId' => $registro->empId,
-                    'empresa_nombre' => $registro->empresa_nombre,
-                    'venFecha' => $registro->venFecha,
-                    'ingresos' => [
-                        [
-                            'tipoId' => $registro->tipoId,
-                            'ingresos_cantidad' => $registro->ingresos_cantidad
-                        ]
-                    ]
-                ];
-            }
-        }
-
-        // Convertimos a array para obtener un índice secuencial
-        return array_values($ventasAgrupadas);
-    }
-
-
-    public function obtenerRegistros1($fecha)
-    {
-        $info = Sucursales::leftJoin('empresas as emp', 'sucursales.empId', '=', 'emp.empId')
-            ->leftJoin('ingestas_empresa as ing', 'emp.empId', '=', 'ing.empId')  // Relación empresa -> tipos de ingestas
-
-            ->leftJoin('ventas as v', function ($join) use ($fecha) {
-                $join->on('sucursales.sucId', '=', 'v.sucId')
-                    //->on('ing.tipoId', '=', 'v.tipoId') // Relación sucursal -> tipo de ingesta -> ventas
-                    ->whereDate('v.venFecha', $fecha); // Filtrar por fecha
+        $sucursales = Sucursales::leftJoin('empresas as emp', 'sucursales.empId', '=', 'emp.empId')
+            ->leftJoin('ingresos as ing', 'sucursales.sucId', '=', 'ing.sucId')
+            ->leftJoin('ventas as ven', function ($join) use ($fecha) {
+                $join->on('ing.venId', '=', 'ven.venId')
+                    ->where('ven.venFecha', '=', $fecha);
             })
-
-            ->leftJoin('ingresos as i', function ($join) use ($fecha) {
-                $join->on('v.venId', '=', 'i.venId');
-                  //  ->on('ing.tipoId', '=', 'i.tipoId'); // Relación sucursal -> tipo de ingesta -> ingresos
-                   // ->whereDate('i.fecha', $fecha); // Filtrar por fecha
-            })
+            ->leftJoin('parametros as param', 'ing.tipoId', '=', 'param.id') // Relacionar con parámetros
             ->select(
                 'sucursales.sucId',
                 'sucursales.sucNombre as sucursal_nombre',
                 'emp.empId',
                 'emp.empNombre as empresa_nombre',
-                'i.tipoId',
-                'i.ingCantidad as ingresos_cantidad', // cantidad de ingresos
-                'v.venFecha'
+                'ven.venId',
+                'ven.venFecha',
+                'ing.tipoId',
+                'ing.ingCantidad',
+                'param.nombre as tipo_nombre'
             )
-            ->orderBy('sucursales.empId', 'asc')
+            ->get()
+            ->groupBy('sucId') // Agrupar por sucursal
+            ->map(function ($items, $sucId) {
+                $sucursal = $items->first(); // Obtener los datos generales de la sucursal
+                return [
+                    'sucId' => $sucursal->sucId,
+                    'sucursal_nombre' => $sucursal->sucursal_nombre,
+                    'empId' => $sucursal->empId,
+                    'empresa_nombre' => $sucursal->empresa_nombre,
+                    'ventas' => $items->map(function ($venta) {
+                        return [
+                            'venId' => $venta->venId,
+                            'tipoId' => $venta->tipoId,
+                            'ingCantidad' => $venta->ingCantidad,
+                            'nombre' => $venta->tipo_nombre,
+                            'fecha' => $venta->venFecha,
+                        ];
+                    })->toArray()
+                ];
+            })
+            ->values(); // Reindexar los resultados
+
+        return response()->json($sucursales);
+    }
+
+
+    public function obtenerRegistros1($fecha)
+    {
+
+        $sucursales = Sucursales::leftJoin('empresas as emp', 'sucursales.empId', '=', 'emp.empId')
+                ->select(
+                'sucursales.sucId',
+                'sucursales.sucNombre as sucursal_nombre',
+                'emp.empId',
+                'emp.empNombre as empresa_nombre'
+            )
             ->get();
 
-        return $info;
+return $sucursales;
     }
+
+
 
     public function guardarRegistro(Request $request)
     {

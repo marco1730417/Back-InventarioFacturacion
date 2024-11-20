@@ -91,7 +91,7 @@ class VentasController extends ApiResponseController
 // Confirmar la transacción
             DB::commit();
             return $this->successResponse($new_data, 200, 'Registro guardado exitosamente');
-            
+
         } catch (\Exception $e) {
             // Revertir la transacción en caso de error
             DB::rollBack();
