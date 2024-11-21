@@ -46,7 +46,9 @@ class SucursalesController extends ApiResponseController
                     'sucursal_nombre' => $sucursal->sucursal_nombre,
                     'empId' => $sucursal->empId,
                     'empresa_nombre' => $sucursal->empresa_nombre,
-                    'ventas' => $items->map(function ($venta) {
+                    'ventas' => array_values($items->filter(function ($venta) {
+                        return !is_null($venta->venId); // Excluir registros donde venId sea nulo
+                    })->map(function ($venta) {
                         return [
                             'venId' => $venta->venId,
                             'tipoId' => $venta->tipoId,
@@ -54,29 +56,14 @@ class SucursalesController extends ApiResponseController
                             'nombre' => $venta->tipo_nombre,
                             'fecha' => $venta->venFecha,
                         ];
-                    })->toArray()
+                    })->toArray()) // Reindexar las ventas
                 ];
             })
-            ->values(); // Reindexar los resultados
+            ->values(); // Reindexar los resultados principales
 
         return response()->json($sucursales);
     }
 
-
-    public function obtenerRegistros1($fecha)
-    {
-
-        $sucursales = Sucursales::leftJoin('empresas as emp', 'sucursales.empId', '=', 'emp.empId')
-                ->select(
-                'sucursales.sucId',
-                'sucursales.sucNombre as sucursal_nombre',
-                'emp.empId',
-                'emp.empNombre as empresa_nombre'
-            )
-            ->get();
-
-return $sucursales;
-    }
 
 
 
@@ -94,9 +81,7 @@ return $sucursales;
         $new_data->sucObservacion =$request->sucObservacion;
         $new_data->save();
 
-       /*  $respuesta = [
-            'data' => $new_data
-        ]; */
+
         return $this->successResponse($new_data, 200, 'Registro guardado exitosamente');
     }
     public function editarRegistro(Request $request)
