@@ -60,14 +60,18 @@ class VentasController extends ApiResponseController
     public function guardarDetalleVenta(Request $request)
     {
 
+
         $sucId= $request['sucId'];
         $fecha= $request['fecha'];
-        // Inicia una transacción
-        DB::beginTransaction();
-        try {
-        $venta= Ventas::where('venFecha',$fecha)->first();
 
-        if(!$venta) {
+
+            $venta= Ventas::where('venFecha',$fecha)->first();
+            $verifica_ingreso = Ingresos::where('venId', $venta->venId)->where('sucId', $sucId)->count();
+            $datos_ingreso = Ingresos::where('venId', $venta->venId)->where('sucId', $sucId)->get();
+
+            if($verifica_ingreso == 0){
+
+            if(!$venta) {
             $venta = new Ventas;
             $venta->venManoObra = 0;
             $venta->venMateriaPrima = 0;
@@ -88,16 +92,30 @@ class VentasController extends ApiResponseController
             $new_data->save();
 
         }
-// Confirmar la transacción
-            DB::commit();
-            return $this->successResponse($new_data, 200, 'Registro guardado exitosamente');
+                return $this->successResponse($new_data, 200, 'Registro guardado exitosamente');
 
-        } catch (\Exception $e) {
-            // Revertir la transacción en caso de error
-            DB::rollBack();
+            }
 
-            return $this->errorResponse($e->getMessage(), 500, 'Ocurrió un error al guardar los datos');
-        }
+            if($verifica_ingreso>0){
+
+                $datos_ingreso->each(function ($item) {
+                    $elemento = Ingresos::findOrFail($item->ingId);
+                    $elemento->delete();
+                });
+
+                foreach ($request['cantidades'] as $tipoId => $cantidad) {
+
+                    $new_data = new Ingresos;
+                    $new_data->tipoId = $tipoId;
+                    $new_data->ingCantidad = $cantidad;
+                    $new_data->sucId = $sucId;
+                    $new_data->venId = $venta->venId;
+                    $new_data->save();
+
+                }
+                return $this->successResponse($new_data, 200, 'Registro guardado exitosamente');
+
+            }
 
     }
     public function editarRegistro(Request $request)
