@@ -66,21 +66,27 @@ class VentasController extends ApiResponseController
 
 
             $venta= Ventas::where('venFecha',$fecha)->first();
-            $verifica_ingreso = Ingresos::where('venId', $venta->venId)->where('sucId', $sucId)->count();
-            $datos_ingreso = Ingresos::where('venId', $venta->venId)->where('sucId', $sucId)->get();
 
-            if($verifica_ingreso == 0){
 
-            if(!$venta) {
-            $venta = new Ventas;
-            $venta->venManoObra = 0;
-            $venta->venMateriaPrima = 0;
-            $venta->venEmpaques = 0;
-            $venta->venFecha = $fecha;
-            $venta->venCosto =0;
-            $venta->venEstado =  1;
-            $venta->save();
-        }
+
+
+                if(!$venta) {
+                $venta = new Ventas;
+                $venta->venManoObra = 0;
+                $venta->venMateriaPrima = 0;
+                $venta->venEmpaques = 0;
+                $venta->venFecha = $fecha;
+                $venta->venCosto =0;
+                $venta->venEstado =  1;
+                $venta->save();
+            }
+
+
+        $verifica_ingreso = Ingresos::where('venId', $venta->venId)->where('sucId', $sucId)->count();
+        $datos_ingreso = Ingresos::where('venId', $venta->venId)->where('sucId', $sucId)->get();
+
+        if($verifica_ingreso == 0){
+
 
         foreach ($request['cantidades'] as $tipoId => $cantidad) {
 
