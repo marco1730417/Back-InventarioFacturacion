@@ -59,16 +59,10 @@ class VentasController extends ApiResponseController
 
     public function guardarDetalleVenta(Request $request)
     {
-
-
         $sucId= $request['sucId'];
         $fecha= $request['fecha'];
 
-
             $venta= Ventas::where('venFecha',$fecha)->first();
-
-
-
 
                 if(!$venta) {
                 $venta = new Ventas;
@@ -81,12 +75,10 @@ class VentasController extends ApiResponseController
                 $venta->save();
             }
 
-
         $verifica_ingreso = Ingresos::where('venId', $venta->venId)->where('sucId', $sucId)->count();
         $datos_ingreso = Ingresos::where('venId', $venta->venId)->where('sucId', $sucId)->get();
 
         if($verifica_ingreso == 0){
-
 
         foreach ($request['cantidades'] as $tipoId => $cantidad) {
 
@@ -98,7 +90,9 @@ class VentasController extends ApiResponseController
             $new_data->save();
 
         }
-                return $this->successResponse($new_data, 200, 'Registro guardado exitosamente');
+
+            $this->almacenarExtras($fecha);
+            return $this->successResponse($new_data, 200, 'Registro guardado exitosamente');
 
             }
 
@@ -119,11 +113,83 @@ class VentasController extends ApiResponseController
                     $new_data->save();
 
                 }
+
+                $this->almacenarExtras($fecha);
                 return $this->successResponse($new_data, 200, 'Registro guardado exitosamente');
 
             }
 
+
     }
+    public function almacenarExtras($fecha)
+    {
+        $sucursales = Sucursales::leftJoin('empresas as emp', 'sucursales.empId', '=', 'emp.empId')
+            ->leftJoin('ingresos as ing', 'sucursales.sucId', '=', 'ing.sucId')
+            ->leftJoin('ventas as ven', function ($join) use ($fecha) {
+                $join->on('ing.venId', '=', 'ven.venId')
+                    ->where('ven.venFecha', '=', $fecha);
+            })
+            ->leftJoin('parametros as param', 'ing.tipoId', '=', 'param.id') // Relacionar con parámetros
+            ->select(
+                'sucursales.sucId',
+                'sucursales.sucNombre as sucursal_nombre',
+                'emp.empId',
+                'emp.empNombre as empresa_nombre',
+                'ven.venId',
+                'ven.venFecha',
+                'ing.tipoId',
+                'ing.ingCantidad',
+                'param.nombre as tipo_nombre',
+                'param.valor'
+            )
+            ->get()
+            ->groupBy('sucId') // Agrupar por sucursal
+            ->map(function ($items, $sucId) {
+                $sucursal = $items->first(); // Obtener los datos generales de la sucursal
+                $ventas = array_values($items->filter(function ($venta) {
+                    return !is_null($venta->venId); // Excluir registros donde venId sea nulo
+                })->map(function ($venta) {
+                    $total_ingesta = $venta->valor * $venta->ingCantidad; // Calcular total por venta
+                    return [
+                        'venId' => $venta->venId,
+                        'tipoId' => $venta->tipoId,
+                        'ingCantidad' => $venta->ingCantidad,
+                        'nombre' => $venta->tipo_nombre,
+                        'fecha' => $venta->venFecha,
+                        'valor' => $venta->valor,
+                        'total_ingesta' => $total_ingesta,
+                    ];
+                })->toArray());
+
+                // Calcular total de venta diaria
+                $total_venta_diaria = collect($ventas)->sum('total_ingesta');
+                $ventas = collect($ventas);
+                $ventas= $ventas[0]['venId'];
+                $venId= $ventas;
+                            return [
+                    'total_venta_diaria' => $total_venta_diaria,
+                    'venId' => $venId,
+
+                ];
+            })
+            ->values(); // Reindexar los resultados principales
+
+        // Calcular suma global de todas las sucursales
+        $suma_global = $sucursales->sum('total_venta_diaria');
+        $ventas = $sucursales;
+
+        $cqlUpdate = Ventas::find($ventas[0]['venId']);
+        $cqlUpdate->venManoObra = $suma_global * 0.25;
+        $cqlUpdate->venMateriaPrima =  $suma_global * 0.5;
+        $cqlUpdate->venEmpaques =  $suma_global * 0.20;
+        $cqlUpdate->venCosto =$cqlUpdate->venMateriaPrima + $cqlUpdate->venEmpaques + $cqlUpdate->venManoObra;;
+        $cqlUpdate->save();
+
+        return response()->json([
+            '$cqlUpdate' => $cqlUpdate, // Agregar total global
+        ]);
+    }
+
     public function editarRegistro(Request $request)
     {
         $costo = ( $request->venManoObra +  $request->venMateriaPrima +  $request->venEmpaques );
