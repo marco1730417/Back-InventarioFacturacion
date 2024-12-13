@@ -74,8 +74,9 @@ class UsuariosController extends ApiResponseController
         // Validar que las horas están presentes y tienen el formato correcto
         try {
 
-            $horaEntrada = Carbon::createFromFormat('H:i', $request->hora_entrada);
-            $horaSalida = Carbon::createFromFormat('H:i', $request->hora_salida);
+            $horaEntrada = Carbon::createFromFormat('H:i:s', $request->hora_entrada);
+            $horaSalida = Carbon::createFromFormat('H:i:s', $request->hora_salida);
+
         }
         catch (\Exception $e) {
         return $this->errorResponse(null, 400, 'El formato de las horas es inválido.');
