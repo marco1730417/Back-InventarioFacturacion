@@ -14,7 +14,8 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
 class SucursalesController extends ApiResponseController
-{public function obtenerRegistros($fecha)
+{
+    public function obtenerRegistros($fecha)
 {
     $sucursales = Sucursales::leftJoin('empresas as emp', 'sucursales.empId', '=', 'emp.empId')
         ->leftJoin('ingresos as ing', 'sucursales.sucId', '=', 'ing.sucId')
@@ -76,63 +77,6 @@ class SucursalesController extends ApiResponseController
         'total_venta_general' => $suma_global, // Agregar total global
     ]);
 }
-
-
-
-    /*    public function obtenerRegistros($fecha)
-        {
-            $sucursales = Sucursales::leftJoin('empresas as emp', 'sucursales.empId', '=', 'emp.empId')
-                ->leftJoin('ingresos as ing', 'sucursales.sucId', '=', 'ing.sucId')
-                ->leftJoin('ventas as ven', function ($join) use ($fecha) {
-                    $join->on('ing.venId', '=', 'ven.venId')
-                        ->where('ven.venFecha', '=', $fecha);
-                })
-                ->leftJoin('parametros as param', 'ing.tipoId', '=', 'param.id') // Relacionar con parámetros
-                ->select(
-                    'sucursales.sucId',
-                    'sucursales.sucNombre as sucursal_nombre',
-                    'emp.empId',
-                    'emp.empNombre as empresa_nombre',
-                    'ven.venId',
-                    'ven.venFecha',
-                    'ing.tipoId',
-                    'ing.ingCantidad',
-                    'param.nombre as tipo_nombre',
-                    'param.valor'
-                )
-                ->get()
-                ->groupBy('sucId') // Agrupar por sucursal
-                ->map(function ($items, $sucId) {
-                    $sucursal = $items->first(); // Obtener los datos generales de la sucursal
-                    return [
-                        'sucId' => $sucursal->sucId,
-                        'sucursal_nombre' => $sucursal->sucursal_nombre,
-                        'empId' => $sucursal->empId,
-                        'empresa_nombre' => $sucursal->empresa_nombre,
-                        'ventas' => array_values($items->filter(function ($venta) {
-                            return !is_null($venta->venId); // Excluir registros donde venId sea nulo
-                        })->map(function ($venta) {
-                            return [
-                                'venId' => $venta->venId,
-                                'tipoId' => $venta->tipoId,
-                                'ingCantidad' => $venta->ingCantidad,
-                                'nombre' => $venta->tipo_nombre,
-                                'fecha' => $venta->venFecha,
-                                'valor' => $venta->valor,
-                                'total_ingesta' => ($venta->valor * $venta->ingCantidad),
-
-                            ];
-                        })->toArray()) // Reindexar las ventas
-
-
-                    ];
-                })
-                ->values(); // Reindexar los resultados principales
-
-            return response()->json($sucursales);
-        }*/
-
-
 
 
     public function guardarRegistro(Request $request)
