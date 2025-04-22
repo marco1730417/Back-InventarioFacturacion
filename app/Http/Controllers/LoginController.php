@@ -9,7 +9,8 @@ use Illuminate\Http\Request;
 class LoginController extends Controller
 {
     public function login(Request $request)
-    {
+    {/* 
+        Testing */
         $data = [
             'identificacion' => $request->identificacion,
             'password' => $request->password
